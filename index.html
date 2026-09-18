@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>বংশ পরম্পরা - পারিবারিক ইতিহাস ও বংশলতিকা</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <!-- D3.js for canvas hierarchy and zoom/pan -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- html-to-image for exporting tree as PNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="header-top-row">
+      <div class="brand">
+        <div class="brand-icon">🌳</div>
+        <div class="brand-info">
+          <h1>বংশ পরম্পরা</h1>
+          <p class="brand-sub">আদিপুরুষ: <strong>পরানউল্লা</strong> (বানিশান্তা গ্রাম)</p>
+        </div>
+      </div>
+
+      <!-- Top Right Controls -->
+      <div class="top-controls">
+        <!-- View Toggle (Smart Mobile Journey vs Full Tree Map) -->
+        <div class="view-switch-pill">
+          <button id="view-mode-focus" class="view-switch-btn active" title="মোবাইল ফোকাস ভিউ">
+            <span>📱</span> ফোকাস
+          </button>
+          <button id="view-mode-tree" class="view-switch-btn" title="সম্পূর্ণ নকশা (ট্রি ম্যাপ)">
+            <span>🗺️</span> ফুল ট্রি
+          </button>
+        </div>
+
+        <!-- Admin Auth Button & Badge -->
+        <button id="btn-admin-login-modal" class="btn btn-auth btn-sm" title="অ্যাডমিন লগইন">
+          <span>🔐</span> লগইন
+        </button>
+
+        <div id="admin-status-badge" class="admin-badge" style="display: none;">
+          <span>🛡️ অ্যাডমিন</span>
+          <button id="btn-admin-logout" class="btn-logout" title="লগআউট">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Action Bar (Search & Fast Navigation) -->
+    <div class="header-search-row">
+      <div class="search-wrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" class="search-input" placeholder="নাম বা স্থান লিখে খুঁজুন..." autocomplete="off">
+        <div id="search-results" class="search-dropdown"></div>
+      </div>
+
+      <div class="quick-nav-actions">
+        <button class="btn btn-outline btn-sm" id="btn-quick-poranulla" title="বংশের আদিপুরুষ পরানউল্লাতে যান">
+          👑 পরানউল্লা
+        </button>
+        <button class="btn btn-gold btn-sm" id="btn-quick-tanvir" title="আমার প্রোফাইলে যান">
+          ✨ তানভীর
+        </button>
+
+        <!-- Tools Dropdown -->
+        <div class="dropdown">
+          <button class="btn btn-outline btn-sm dropdown-toggle" id="tools-dropdown-btn">
+            ⚙️ ▾
+          </button>
+          <div class="dropdown-menu" id="tools-dropdown-menu">
+            <button class="dropdown-item admin-only-ui" id="btn-add-member" style="display: none;">
+              <span>➕</span> নতুন সদস্য যোগ করুন
+            </button>
+            <button class="dropdown-item" id="btn-export-json">
+              <span>💾</span> JSON ডাটা ডাউনলোড
+            </button>
+            <button class="dropdown-item admin-only-ui" id="btn-import-json-trigger" style="display: none;">
+              <span>📂</span> JSON ফাইল আপলোড
+            </button>
+            <button class="dropdown-item" id="btn-export-gedcom">
+              <span>📜</span> GEDCOM ফাইল (.ged)
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" id="btn-export-image">
+              <span>🖼️</span> ট্রি এর ছবি ডাউনলোড
+            </button>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="json-file-input" accept=".json" style="display: none;">
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER -->
+  <main class="main-content-area">
+
+    <!-- 1. SMART MOBILE FOCUSED JOURNEY VIEW (Default for Mobile) -->
+    <div class="mobile-journey-container" id="mobile-journey-view">
+      
+      <!-- Breadcrumb Navigation Bar -->
+      <nav class="ancestor-breadcrumb-bar" id="ancestor-breadcrumbs">
+        <!-- Injected via JavaScript: পরানউল্লা > আমানউল্লা > ... -->
+      </nav>
+
+      <!-- Main Focus Hero Card -->
+      <div class="focus-hero-card" id="focus-hero-card">
+        
+        <!-- Top Status & Generation -->
+        <div class="hero-card-header">
+          <span class="hero-generation-tag" id="focus-generation">১ম প্রজন্ম</span>
+          <span class="hero-status-pill" id="focus-status">বংশের আদিপুরুষ</span>
+        </div>
+
+        <!-- Avatar & Name Section -->
+        <div class="hero-profile-center">
+          <div class="hero-avatar-wrapper" id="hero-avatar-box">
+            <img id="focus-photo-img" src="" alt="" class="hero-avatar" style="display: none;">
+            <div id="focus-photo-placeholder" class="hero-avatar-placeholder">👑</div>
+            
+            <!-- Admin Photo Upload Trigger -->
+            <button class="hero-camera-btn admin-only-ui" id="btn-hero-change-photo" title="ছবি পরিবর্তন বা আপলোড করুন" style="display: none;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </button>
+            <input type="file" id="hero-photo-input" accept="image/*" style="display: none;">
+          </div>
+
+          <h2 class="hero-name" id="focus-name">পরানউল্লা</h2>
+          <div class="hero-location-pill" id="focus-residence-pill">
+            <span>📍</span> <span id="focus-residence">বানিশান্তা গ্রাম, দাকোপ, খুলনা</span>
+          </div>
+        </div>
+
+        <!-- Historical Notes / Trivia (Special prominence for mobile) -->
+        <div class="hero-notes-card">
+          <div class="notes-header">
+            <span>📖</span> বংশের তথ্য ও ইতিহাস
+          </div>
+          <p class="notes-content" id="focus-notes">
+            এখন পর্যন্ত পাওয়া তথ্যের ভিত্তিতে বংশের আদিপুরুষ। মূল বাসস্থান ছিল বানিশান্তা গ্রাম।
+          </p>
+        </div>
+
+        <!-- Parent Navigation Button (If exists) -->
+        <div class="hero-parent-box" id="hero-parent-box" style="display: none;">
+          <span class="parent-label">পিতা / পূর্বপুরুষ:</span>
+          <button class="parent-nav-btn" id="btn-goto-parent">
+            <span>⬆️</span> <strong id="focus-parent-name">পিতার নাম</strong>
+          </button>
+        </div>
+
+        <!-- Siblings Section (If exists) -->
+        <div class="hero-siblings-section" id="hero-siblings-section" style="display: none;">
+          <div class="section-micro-title">
+            <span>👥</span> ভাই-বোনগণ (<span id="focus-siblings-count">০</span>):
+          </div>
+          <div class="siblings-scroll-chips" id="focus-siblings-list"></div>
+        </div>
+
+        <!-- Admin Action Toolbar on Card -->
+        <div class="hero-admin-toolbar admin-only-ui" id="hero-admin-toolbar" style="display: none;">
+          <button class="btn btn-sm btn-primary" id="btn-hero-add-child">
+            ➕ সন্তান যুক্ত করুন
+          </button>
+          <button class="btn btn-sm btn-outline" id="btn-hero-add-sibling">
+            ➕ ভাই/বোন
+          </button>
+          <button class="btn btn-sm btn-outline" id="btn-hero-edit">
+            ✏️ সম্পাদনা
+          </button>
+          <button class="btn btn-sm btn-danger-outline" id="btn-hero-delete">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <!-- Down Arrow Indicator -->
+      <div class="flow-down-indicator" id="flow-indicator">
+        <div class="flow-line"></div>
+        <div class="flow-badge">
+          <span>পরবর্তী প্রজন্ম / সন্তানগণ</span> (<span id="focus-children-count">০</span>)
+        </div>
+      </div>
+
+      <!-- Children Interactive Grid Cards -->
+      <div class="children-cards-section" id="children-cards-section">
+        <div class="children-grid" id="focus-children-grid">
+          <!-- Dynamically generated child cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 2. FULL TREE CANVAS VIEW (D3 SVG Pan & Zoom) -->
+    <div class="tree-viewport" id="tree-viewport" style="display: none;">
+      <svg id="tree-svg">
+        <defs>
+          <filter id="card-shadow" x="-10%" y="-10%" width="125%" height="125%">
+            <feDropShadow dx="0" dy="5" stdDeviation="8" flood-opacity="0.09" />
+          </filter>
+          <filter id="hover-shadow" x="-15%" y="-15%" width="130%" height="130%">
+            <feDropShadow dx="0" dy="10" stdDeviation="15" flood-opacity="0.18" />
+          </filter>
+        </defs>
+        <g id="tree-group"></g>
+      </svg>
+
+      <!-- Floating Zoom Controls -->
+      <div class="floating-controls">
+        <button class="f-btn" id="btn-zoom-in" title="বড় করুন">+</button>
+        <button class="f-btn" id="btn-zoom-out" title="ছোট করুন">−</button>
+        <button class="f-btn" id="btn-fit-screen" title="সেন্টার করুন">⛶</button>
+      </div>
+
+      <div class="tree-legend">
+        <div class="legend-item"><span class="dot dot-male"></span> পুরুষ</div>
+        <div class="legend-item"><span class="dot dot-female"></span> নারী</div>
+        <div class="legend-item"><span class="dot dot-user"></span> তানভীর</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Admin Login Modal -->
+  <div class="modal-backdrop" id="admin-login-modal">
+    <div class="modal-card" style="max-width: 360px;">
+      <div class="modal-header">
+        <h3>🔐 অ্যাডমিন লগইন</h3>
+        <button class="close-modal-btn" id="close-login-modal-btn">✕</button>
+      </div>
+      <form id="admin-login-form" class="modal-form">
+        <div class="form-group">
+          <label for="login-username">ইউজারনেম</label>
+          <input type="text" id="login-username" value="tanvir" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">পাসওয়ার্ড</label>
+          <input type="password" id="login-password" placeholder="পাসওয়ার্ড লিখুন..." required autocomplete="current-password">
+        </div>
+
+        <div id="login-error-msg" class="login-error" style="display: none;">
+          পাসওয়ার্ড ভুল হয়েছে! আবার চেষ্টা করুন।
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-cancel-login">বাতিল</button>
+          <button type="submit" class="btn btn-primary">লগইন করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Member Modal (Admin Only) -->
+  <div class="modal-backdrop" id="member-modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">নতুন সদস্য যুক্ত করুন</h3>
+        <button class="close-modal-btn" id="close-modal-btn">✕</button>
+      </div>
+      
+      <form id="member-form" class="modal-form">
+        <input type="hidden" id="form-member-id">
+
+        <!-- Photo Selection / Preview -->
+        <div class="form-avatar-section">
+          <div class="avatar-preview-box">
+            <img id="form-avatar-preview" src="" alt="" style="display:none;">
+            <div id="form-avatar-icon" class="avatar-icon-placeholder">📷</div>
+          </div>
+          <div class="avatar-actions">
+            <label class="btn btn-sm btn-outline avatar-upload-label">
+              <span>ছবি আপলোড করুন</span>
+              <input type="file" id="form-photo-input" accept="image/*" style="display:none;">
+            </label>
+            <button type="button" class="btn btn-sm btn-outline" id="btn-remove-photo" style="display:none;">ছবি মুছুন</button>
+            <div class="avatar-helper-text">JPG, PNG ছবি সাপোর্ট করে</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="form-name">সদস্যের পুরো নাম <span class="required">*</span></label>
+            <input type="text" id="form-name" required placeholder="উদা: আফেল উদ্দিন হাওলাদার">
+          </div>
+          <div class="form-group flex-1">
+            <label for="form-gender">লিঙ্গ <span class="required">*</span></label>
+            <select id="form-gender" required>
+              <option value="male">পুরুষ</option>
+              <option value="female">নারী</option>
+              <option value="unknown">অজানা</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="form-parent">পিতা / অভিভাবক নির্বাচন করুন</label>
+          <select id="form-parent">
+            <option value="">-- কোনো অভিভাবক নেই (আদিপুরুষ) --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="form-residence">গ্রাম / বাসস্থান / ঠিকানা</label>
+          <input type="text" id="form-residence" placeholder="উদা: বানিশান্তা গ্রাম, দাকোপ, খুলনা">
+        </div>
+
+        <div class="form-group">
+          <label for="form-notes">ঐতিহাসিক নোট বা গুরুত্বপূর্ণ বিবরণ</label>
+          <textarea id="form-notes" rows="3" placeholder="যেমন: পেশা, বিশেষ ঘটনা, জীবনের তথ্য..."></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-cancel-modal">বাতিল</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-modal">সংরক্ষণ করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+[
+  {
+    "id": "poranulla",
+    "name": "পরানউল্লা",
+    "gender": "male",
+    "parentId": null,
+    "photo": "",
+    "residence": "বানিশান্তা গ্রাম, দাকোপ, খুলনা",
+    "notes": "এখন পর্যন্ত পাওয়া তথ্যের ভিত্তিতে বংশের আদিপুরুষ। মূল বাসস্থান ছিল বানিশান্তা।"
+  },
+  {
+    "id": "amanulla",
+    "name": "হাজী আমানউল্লা",
+    "gender": "male",
+    "parentId": "poranulla",
+    "photo": "",
+    "residence": "শংকরপাশা গ্রাম",
+    "notes": "পরানউল্লার জ্যেষ্ঠ পুত্র। বাসস্থান: শংকরপাশা গ্রাম।"
+  },
+  {
+    "id": "dorajulla",
+    "name": "দরাজউল্লা",
+    "gender": "male",
+    "parentId": "poranulla",
+    "photo": "",
+    "residence": "শংকরপাশা গ্রাম",
+    "notes": "পরানউল্লার দ্বিতীয় পুত্র। বাসস্থান: শংকরপাশা গ্রাম।"
+  },
+  {
+    "id": "sharafulla",
+    "name": "শরাফউল্লা",
+    "gender": "male",
+    "parentId": "poranulla",
+    "photo": "",
+    "residence": "শংকরপাশা গ্রাম",
+    "notes": "পরানউল্লার তৃতীয় পুত্র। বাসস্থান: শংকরপাশা গ্রাম।"
+  },
+  {
+    "id": "imdad_ali",
+    "name": "হাজী ইমদাদ আলী",
+    "gender": "male",
+    "parentId": "amanulla",
+    "photo": "",
+    "residence": "",
+    "notes": "হাজী আমানউল্লার একমাত্র পুত্র।"
+  },
+  {
+    "id": "sharafulla_daughter_1",
+    "name": "অজ্ঞাত কন্যা",
+    "gender": "female",
+    "parentId": "sharafulla",
+    "photo": "",
+    "residence": "",
+    "notes": "শরাফউল্লার একমাত্র কন্যা (নাম এখনও পাওয়া যায়নি)।"
+  },
+  {
+    "id": "afel_uddin",
+    "name": "আফেল উদ্দিন হাওলাদার",
+    "gender": "male",
+    "parentId": "imdad_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "হাজী ইমদাদ আলীর পুত্র। অনেকগুলো ছেলেমেয়ে আছে, বাকিদের তথ্য পরে যুক্ত করা হবে।"
+  },
+  {
+    "id": "imdad_daughter_1",
+    "name": "অজ্ঞাত কন্যা ১",
+    "gender": "female",
+    "parentId": "imdad_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "হাজী ইমদাদ আলীর কন্যা।"
+  },
+  {
+    "id": "imdad_daughter_2",
+    "name": "অজ্ঞাত কন্যা ২",
+    "gender": "female",
+    "parentId": "imdad_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "হাজী ইমদাদ আলীর কন্যা।"
+  },
+  {
+    "id": "imdad_daughter_3",
+    "name": "অজ্ঞাত কন্যা ৩",
+    "gender": "female",
+    "parentId": "imdad_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "হাজী ইমদাদ আলীর কন্যা।"
+  },
+  {
+    "id": "khairul_bashar",
+    "name": "মোহাম্মদ খাইরুল বাশার",
+    "gender": "male",
+    "parentId": "afel_uddin",
+    "photo": "",
+    "residence": "",
+    "notes": "আফেল উদ্দিন হাওলাদারের পুত্র।"
+  },
+  {
+    "id": "tamim",
+    "name": "মোহাম্মদ তামিম",
+    "gender": "male",
+    "parentId": "khairul_bashar",
+    "photo": "",
+    "residence": "",
+    "notes": "মোহাম্মদ খাইরুল বাশারের পুত্র।"
+  },
+  {
+    "id": "tanvir",
+    "name": "মোহাম্মদ তানভীর",
+    "gender": "male",
+    "parentId": "khairul_bashar",
+    "photo": "",
+    "residence": "",
+    "notes": "মোহাম্মদ খাইরুল বাশারের পুত্র (আপনি)।"
+  },
+  {
+    "id": "tahira",
+    "name": "দিলরুবা আক্তার তাহিরা",
+    "gender": "female",
+    "parentId": "khairul_bashar",
+    "photo": "",
+    "residence": "",
+    "notes": "মোহাম্মদ খাইরুল বাশারের কন্যা।"
+  },
+  {
+    "id": "mozaffar_ali",
+    "name": "মোজাফফর আলী",
+    "gender": "male",
+    "parentId": "dorajulla",
+    "photo": "",
+    "residence": "",
+    "notes": "দরাজউল্লার প্রথম পুত্র।"
+  },
+  {
+    "id": "iman_ali",
+    "name": "ইমান আলী",
+    "gender": "male",
+    "parentId": "dorajulla",
+    "photo": "",
+    "residence": "",
+    "notes": "দরাজউল্লার দ্বিতীয় পুত্র।"
+  },
+  {
+    "id": "abdul_haq",
+    "name": "আব্দুল হক",
+    "gender": "male",
+    "parentId": "mozaffar_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "মোজাফফর আলীর একমাত্র পুত্র।"
+  },
+  {
+    "id": "mozaffar_daughter_1",
+    "name": "অজ্ঞাত কন্যা ১",
+    "gender": "female",
+    "parentId": "mozaffar_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "মোজাফফর আলীর কন্যা।"
+  },
+  {
+    "id": "mozaffar_daughter_2",
+    "name": "অজ্ঞাত কন্যা ২",
+    "gender": "female",
+    "parentId": "mozaffar_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "মোজাফফর আলীর কন্যা।"
+  },
+  {
+    "id": "momin_uddin",
+    "name": "মোমিন উদ্দিন",
+    "gender": "male",
+    "parentId": "iman_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "ইমান আলীর পুত্র। বংশের একমাত্র ব্যক্তি যিনি ভিক্ষা করেছেন।"
+  },
+  {
+    "id": "ambia",
+    "name": "আম্বিয়া",
+    "gender": "female",
+    "parentId": "iman_ali",
+    "photo": "",
+    "residence": "",
+    "notes": "ইমান আলীর কন্যা।"
+  }
+]
