@@ -223,6 +223,110 @@
       </div>
     </div>
 
+    <!-- Member Details Drawer (For Full Tree Desktop Mode) -->
+    <aside class="member-drawer" id="member-drawer">
+      <div class="drawer-header">
+        <div class="drawer-header-left">
+          <h2 id="drawer-name">সদস্যের নাম</h2>
+          <span class="generation-tag" id="drawer-generation">১ম প্রজন্ম</span>
+        </div>
+        <button class="close-drawer-btn" id="close-drawer-btn">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Profile Photo Card -->
+        <div class="drawer-photo-card">
+          <div class="photo-wrapper" id="drawer-photo-wrapper">
+            <img id="drawer-photo-img" src="" alt="" class="drawer-avatar" style="display:none;">
+            <div id="drawer-photo-placeholder" class="drawer-avatar-placeholder">👤</div>
+            <!-- Admin Only Photo Upload -->
+            <button class="change-photo-btn admin-only-ui" id="btn-drawer-change-photo" title="ছবি পরিবর্তন বা আপলোড করুন" style="display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            </button>
+            <input type="file" id="drawer-photo-input" accept="image/*" style="display: none;">
+          </div>
+          <div class="photo-meta">
+            <h3 id="drawer-card-name">নাম</h3>
+            <p id="drawer-card-status" class="status-badge">বংশের সদস্য</p>
+          </div>
+        </div>
+
+        <!-- Quick Info List -->
+        <div class="info-group">
+          <div class="info-row">
+            <span class="info-icon">📍</span>
+            <div class="info-content">
+              <div class="info-label">আদি নিবাস / বর্তমান ঠিকানা</div>
+              <div class="info-val" id="drawer-residence">অজানা</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">⚧</span>
+            <div class="info-content">
+              <div class="info-label">লিঙ্গ</div>
+              <div class="info-val" id="drawer-gender">পুরুষ</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="info-icon">👴</span>
+            <div class="info-content">
+              <div class="info-label">পিতা / অভিভাবক</div>
+              <div class="info-val" id="drawer-parent">কেউ নেই (আদিপুরুষ)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historical Notes Section -->
+        <div class="info-section">
+          <div class="section-title">
+            <span>📝</span> ঐতিহাসিক নোট ও বিশেষ তথ্য
+          </div>
+          <div class="notes-box" id="drawer-notes">
+            কোনো অতিরিক্ত নোট নেই।
+          </div>
+        </div>
+
+        <!-- Relations (Children & Siblings) -->
+        <div class="info-section">
+          <div class="section-title">
+            <span>👶</span> সন্তানগণ (<span id="drawer-children-count">০</span>)
+          </div>
+          <div class="relation-chips" id="drawer-children-list">
+            <span class="empty-hint">কোনো সন্তানের তথ্য এখনো যুক্ত করা হয়নি</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="section-title">
+            <span>👥</span> ভাই ও বোনগণ
+          </div>
+          <div class="relation-chips" id="drawer-siblings-list">
+            <span class="empty-hint">কোনো ভাই/বোন নেই</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drawer Footer Actions (Admin Only) -->
+      <div class="drawer-footer admin-only-ui" id="drawer-admin-footer" style="display: none;">
+        <div class="footer-btn-grid">
+          <button class="btn btn-primary" id="btn-drawer-add-child">
+            <span>➕</span> সন্তান যুক্ত করুন
+          </button>
+          <button class="btn btn-outline" id="btn-drawer-add-sibling">
+            <span>➕</span> ভাই/বোন
+          </button>
+        </div>
+        <div class="footer-btn-grid">
+          <button class="btn btn-outline" id="btn-drawer-edit">
+            <span>✏️</span> সম্পাদনা
+          </button>
+          <button class="btn btn-danger-outline" id="btn-drawer-delete">
+            <span>🗑️</span> মুছুন
+          </button>
+        </div>
+      </div>
+    </aside>
+
   </main>
 
   <!-- Admin Login Modal -->

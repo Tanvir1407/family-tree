@@ -268,8 +268,9 @@ async function initApp() {
   const root = members.find(m => !m.parentId) || members[0];
   if (root) currentFocusedId = root.id;
 
-  // Render Initial Focus View
-  focusMember(currentFocusedId);
+  // Automatically select Tree mode for Desktop/Laptop (>768px), Focus mode for Mobile
+  const isDesktop = window.innerWidth > 768;
+  setViewMode(isDesktop ? 'tree' : 'focus');
 }
 
 // Switch between Mobile Focus Journey & Full Tree Canvas
@@ -281,6 +282,7 @@ function setViewMode(mode) {
   const btnTree = document.getElementById('view-mode-tree');
 
   if (mode === 'focus') {
+    closeMemberDrawer();
     focusView.style.display = 'flex';
     treeView.style.display = 'none';
     btnFocus.classList.add('active');
@@ -301,13 +303,19 @@ function updateAdminUI() {
   const adminElements = document.querySelectorAll('.admin-only-ui');
   const loginBtn = document.getElementById('btn-admin-login-modal');
   const adminBadge = document.getElementById('admin-status-badge');
+  const drawerFooter = document.getElementById('drawer-admin-footer');
+  const drawerPhotoBtn = document.getElementById('btn-drawer-change-photo');
 
   if (isAdmin) {
     adminElements.forEach(el => el.style.display = 'inline-flex');
+    if (drawerFooter) drawerFooter.style.display = 'flex';
+    if (drawerPhotoBtn) drawerPhotoBtn.style.display = 'flex';
     if (loginBtn) loginBtn.style.display = 'none';
     if (adminBadge) adminBadge.style.display = 'inline-flex';
   } else {
     adminElements.forEach(el => el.style.display = 'none');
+    if (drawerFooter) drawerFooter.style.display = 'none';
+    if (drawerPhotoBtn) drawerPhotoBtn.style.display = 'none';
     if (loginBtn) loginBtn.style.display = 'inline-flex';
     if (adminBadge) adminBadge.style.display = 'none';
   }
@@ -619,9 +627,8 @@ function renderTree() {
     .attr('transform', d => `translate(${d.x}, ${d.y})`)
     .on('click', (event, d) => {
       event.stopPropagation();
-      // On click in tree view, switch to focus view or zoom
-      focusMember(d.data.id);
-      setViewMode('focus');
+      openMemberDrawer(d.data.id);
+      zoomToMember(d.data.id);
     });
 
   nodes.append('rect')
@@ -764,6 +771,123 @@ function zoomToMember(memberId) {
     zoomBehavior.transform,
     d3.zoomIdentity.translate(targetX, targetY).scale(targetScale)
   );
+}
+
+// =======================================================
+// MEMBER DETAILS DRAWER (FOR FULL TREE DESKTOP MODE)
+// =======================================================
+let selectedMember = null;
+
+function openMemberDrawer(id) {
+  const member = members.find(m => m.id === id);
+  if (!member) return;
+  selectedMember = member;
+
+  const drawer = document.getElementById('member-drawer');
+  if (!drawer) return;
+  drawer.classList.add('open');
+
+  document.getElementById('drawer-name').textContent = member.name;
+  document.getElementById('drawer-card-name').textContent = member.name;
+
+  const depth = calculateMemberDepth(member);
+  document.getElementById('drawer-generation').textContent = `${toBengaliNum(depth + 1)}ম প্রজন্ম`;
+
+  // Avatar Photo
+  const imgEl = document.getElementById('drawer-photo-img');
+  const placeholderEl = document.getElementById('drawer-photo-placeholder');
+  if (member.photo) {
+    imgEl.src = member.photo;
+    imgEl.style.display = 'block';
+    placeholderEl.style.display = 'none';
+  } else {
+    imgEl.style.display = 'none';
+    placeholderEl.style.display = 'flex';
+    placeholderEl.textContent = member.gender === 'female' ? '👩' : (depth === 0 ? '👑' : '👨');
+  }
+
+  // Meta
+  document.getElementById('drawer-gender').textContent = member.gender === 'female' ? 'নারী' : (member.gender === 'male' ? 'পুরুষ' : 'অজানা');
+  document.getElementById('drawer-residence').textContent = member.residence || 'অজানা / উল্লেখ নেই';
+  
+  // Status badge
+  const statusBadge = document.getElementById('drawer-card-status');
+  if (member.id === 'tanvir') {
+    statusBadge.textContent = '🌟 আপনি (ইউজার)';
+    statusBadge.style.color = '#d97706';
+  } else if (!member.parentId) {
+    statusBadge.textContent = '👑 বংশের আদিপুরুষ';
+    statusBadge.style.color = '#059669';
+  } else {
+    statusBadge.textContent = `${toBengaliNum(depth + 1)}ম প্রজন্মের সদস্য`;
+    statusBadge.style.color = '#475569';
+  }
+
+  // Parent Info (Clickable navigation in drawer)
+  const parent = members.find(m => m.id === member.parentId);
+  const parentEl = document.getElementById('drawer-parent');
+  if (parent) {
+    parentEl.innerHTML = `<span style="color: #2563eb; cursor: pointer; text-decoration: underline;">${parent.name}</span>`;
+    parentEl.onclick = () => {
+      openMemberDrawer(parent.id);
+      zoomToMember(parent.id);
+    };
+  } else {
+    parentEl.textContent = 'কেউ নেই (বংশের আদিপুরুষ)';
+    parentEl.onclick = null;
+  }
+
+  // Notes
+  const notesBox = document.getElementById('drawer-notes');
+  notesBox.textContent = member.notes || 'কোনো অতিরিক্ত নোট বা তথ্য যুক্ত করা হয়নি।';
+
+  // Children List (Clickable navigation in drawer)
+  const children = members.filter(m => m.parentId === member.id);
+  document.getElementById('drawer-children-count').textContent = toBengaliNum(children.length);
+  const childrenList = document.getElementById('drawer-children-list');
+  childrenList.innerHTML = '';
+  if (children.length > 0) {
+    children.forEach(c => {
+      const chip = document.createElement('div');
+      chip.className = 'relation-chip';
+      chip.innerHTML = `<span>${c.gender === 'female' ? '👧' : '👦'}</span> <strong>${c.name}</strong>`;
+      chip.onclick = () => {
+        openMemberDrawer(c.id);
+        zoomToMember(c.id);
+      };
+      childrenList.appendChild(chip);
+    });
+  } else {
+    childrenList.innerHTML = '<span class="empty-hint">কোনো সন্তানের তথ্য এখনো যুক্ত করা হয়নি</span>';
+  }
+
+  // Siblings List (Clickable navigation in drawer)
+  const siblingsList = document.getElementById('drawer-siblings-list');
+  siblingsList.innerHTML = '';
+  if (member.parentId) {
+    const siblings = members.filter(m => m.parentId === member.parentId && m.id !== member.id);
+    if (siblings.length > 0) {
+      siblings.forEach(s => {
+        const chip = document.createElement('div');
+        chip.className = 'relation-chip';
+        chip.innerHTML = `<span>${s.gender === 'female' ? '👧' : '👦'}</span> <strong>${s.name}</strong>`;
+        chip.onclick = () => {
+          openMemberDrawer(s.id);
+          zoomToMember(s.id);
+        };
+        siblingsList.appendChild(chip);
+      });
+    } else {
+      siblingsList.innerHTML = '<span class="empty-hint">কোনো ভাই/বোন নেই (একমাত্র সন্তান)</span>';
+    }
+  } else {
+    siblingsList.innerHTML = '<span class="empty-hint">আদিপুরুষের কোনো ভাই/বোন জানা নেই</span>';
+  }
+}
+
+function closeMemberDrawer() {
+  const drawer = document.getElementById('member-drawer');
+  if (drawer) drawer.classList.remove('open');
 }
 
 // =======================================================
@@ -934,8 +1058,12 @@ function setupSearch() {
       item.onclick = () => {
         dropdown.classList.remove('open');
         searchInput.value = '';
-        focusMember(m.id);
-        if (currentViewMode === 'tree') zoomToMember(m.id);
+        if (currentViewMode === 'tree') {
+          openMemberDrawer(m.id);
+          zoomToMember(m.id);
+        } else {
+          focusMember(m.id);
+        }
       };
 
       dropdown.appendChild(item);
@@ -1048,12 +1176,20 @@ function setupEventListeners() {
 
   // Quick navigation buttons
   document.getElementById('btn-quick-poranulla').onclick = () => {
-    focusMember('poranulla');
-    if (currentViewMode === 'tree') zoomToMember('poranulla');
+    if (currentViewMode === 'tree') {
+      openMemberDrawer('poranulla');
+      zoomToMember('poranulla');
+    } else {
+      focusMember('poranulla');
+    }
   };
   document.getElementById('btn-quick-tanvir').onclick = () => {
-    focusMember('tanvir');
-    if (currentViewMode === 'tree') zoomToMember('tanvir');
+    if (currentViewMode === 'tree') {
+      openMemberDrawer('tanvir');
+      zoomToMember('tanvir');
+    } else {
+      focusMember('tanvir');
+    }
   };
 
   // Tools dropdown
@@ -1232,6 +1368,44 @@ function setupEventListeners() {
     d3.select('#tree-svg').transition().duration(250).call(zoomBehavior.scaleBy, 0.8);
   };
   document.getElementById('btn-fit-screen').onclick = fitScreenToTree;
+
+  // Drawer Event Listeners (Full Tree Desktop Mode)
+  document.getElementById('close-drawer-btn').onclick = closeMemberDrawer;
+  document.getElementById('btn-drawer-add-child').onclick = () => {
+    if (selectedMember) openAddMemberModal(selectedMember.id);
+  };
+  document.getElementById('btn-drawer-add-sibling').onclick = () => {
+    if (selectedMember) openAddMemberModal(selectedMember.parentId || '');
+  };
+  document.getElementById('btn-drawer-edit').onclick = () => {
+    if (selectedMember) openEditMemberModal(selectedMember);
+  };
+  document.getElementById('btn-drawer-delete').onclick = () => {
+    if (selectedMember) deleteMember(selectedMember);
+  };
+
+  // Drawer photo upload
+  const drawerPhotoInput = document.getElementById('drawer-photo-input');
+  document.getElementById('btn-drawer-change-photo').onclick = () => {
+    if (!isAdmin) {
+      openLoginModal();
+      return;
+    }
+    drawerPhotoInput.click();
+  };
+  drawerPhotoInput.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file && selectedMember) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        selectedMember.photo = event.target.result;
+        persistMembers();
+        openMemberDrawer(selectedMember.id);
+        showToast('ছবি সফলভাবে যুক্ত করা হয়েছে!');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 }
 
 // Start
